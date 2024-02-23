@@ -1,7 +1,7 @@
 import { GlobalException } from "./GlobaException";
 
-export default class BadRequestException extends GlobalException {
+export default class ConflictException extends GlobalException {
   constructor(message: string) {
-    super(message, 400);
+    super(message, 409);
   }
 }
