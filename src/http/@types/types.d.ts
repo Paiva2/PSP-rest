@@ -21,3 +21,21 @@ export interface IUserCreation {
   password: string;
   fullName: string;
 }
+
+export interface IWalletModel {
+  id: string;
+  available: number;
+  waiting_funds: number;
+  created_at: Date;
+  updated_at: Date;
+  wallet_owner: string;
+}
+
+export interface IWallet {
+  id: string;
+  available: number;
+  waitingFunds: number;
+  createdAt: Date;
+  updatedAt: Date;
+  walletOwner: string;
+}

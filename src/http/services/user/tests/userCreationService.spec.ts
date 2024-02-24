@@ -4,6 +4,7 @@ import InMemoryUserRepository from "../../../in-memory/inMemoryUserRepository";
 import brcrypt from "bcryptjs";
 import BadRequestException from "../../../exceptions/BadRequestException";
 import ConflictException from "../../../exceptions/ConflictException";
+import InMemoryWalletRepository from "../../../in-memory/inMemoryWalletRepository";
 
 const newUser = {
   email: "johndoe@test.com",
@@ -14,10 +15,13 @@ const newUser = {
 describe("User creation service tests", () => {
   let sut: UserCreationService;
   let userRepository: InMemoryUserRepository;
+  let walletRepository: InMemoryWalletRepository;
 
   beforeEach(() => {
     userRepository = new InMemoryUserRepository();
-    sut = new UserCreationService(userRepository);
+    walletRepository = new InMemoryWalletRepository();
+
+    sut = new UserCreationService(userRepository, walletRepository);
   });
 
   it("should create an new user", async () => {
@@ -25,19 +29,28 @@ describe("User creation service tests", () => {
 
     const compareHashedPassword = await brcrypt.compare(
       "123456",
-      performCreation.passwordHash
+      performCreation.user.passwordHash
     );
 
     expect(compareHashedPassword).toBe(true);
-    expect(performCreation).toEqual(
-      expect.objectContaining({
+    expect(performCreation).toEqual({
+      user: expect.objectContaining({
         email: newUser.email,
         fullName: newUser.fullName,
         id: expect.any(String),
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
-      })
-    );
+      }),
+
+      wallet: expect.objectContaining({
+        id: expect.any(String),
+        available: 0,
+        waitingFunds: 0,
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        walletOwner: performCreation.user.id,
+      }),
+    });
   });
 
   it("should throw an exception if e-mail already exists", async () => {

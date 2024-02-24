@@ -35,4 +35,25 @@ export default class UserModel implements UserRepository {
 
     return creation;
   }
+
+  async findById(id: string): Promise<IUser | null> {
+    const { rows } = await pool.query("SELECT * FROM tb_users WHERE id = $1", [
+      id,
+    ]);
+
+    const find: IUserModel | undefined = rows[0];
+
+    if (!find) return null;
+
+    const userDtoResponse: IUser = {
+      id: find.id,
+      email: find.email,
+      fullName: find.full_name,
+      passwordHash: find.password_hash,
+      createdAt: find.created_at,
+      updatedAt: find.updated_at,
+    };
+
+    return userDtoResponse;
+  }
 }

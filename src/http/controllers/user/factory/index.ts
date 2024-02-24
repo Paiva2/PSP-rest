@@ -1,4 +1,5 @@
 import UserModel from "../../../database/UserModel";
+import WalletModel from "../../../database/WalletModel";
 import UserAuthService from "../../../services/user/userAuthService";
 import { UserCreationService } from "../../../services/user/userCreationService";
 
@@ -8,7 +9,10 @@ export default class UserFactory {
   public async exec() {
     const models = this.models();
 
-    const userCreationService = new UserCreationService(models.userModel);
+    const userCreationService = new UserCreationService(
+      models.userModel,
+      models.walletModel
+    );
     const userAuthService = new UserAuthService(models.userModel);
 
     return {
@@ -19,9 +23,11 @@ export default class UserFactory {
 
   private models() {
     const userModel = new UserModel();
+    const walletModel = new WalletModel();
 
     return {
       userModel,
+      walletModel,
     };
   }
 }

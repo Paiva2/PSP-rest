@@ -1,9 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import UserFactory from "./factory";
 
-//TODO
 export default class UserCreationController {
-  public static async handle(req: Request, res: Response, next: NextFunction) {
+  public static async handle(req: Request, res: Response) {
     const { newUser } = req.body;
 
     const factory = new UserFactory();

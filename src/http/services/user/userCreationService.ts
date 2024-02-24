@@ -1,13 +1,24 @@
-import { IUser, IUserCreation } from "../../@types/types";
+import { IUser, IUserCreation, IWallet } from "../../@types/types";
 import { UserRepository } from "../../repositories/userRepository";
 import BadRequestException from "../../exceptions/BadRequestException";
 import ConflictException from "../../exceptions/ConflictException";
 import bcrypt from "bcryptjs";
+import { WalletRepository } from "../../repositories/walletRepository";
+
+interface UserCreationServiceResponse {
+  user: IUser;
+  wallet: IWallet;
+}
 
 export class UserCreationService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly walletRepository: WalletRepository
+  ) {}
 
-  public async exec(newUser: IUserCreation): Promise<IUser> {
+  public async exec(
+    newUser: IUserCreation
+  ): Promise<UserCreationServiceResponse> {
     if (!newUser) {
       throw new BadRequestException("New user DTO can't be null.");
     }
@@ -42,6 +53,11 @@ export class UserCreationService {
 
     const userCreation = await this.userRepository.save(newUser);
 
-    return userCreation;
+    const userWallet = await this.walletRepository.create(userCreation.id);
+
+    return {
+      user: userCreation,
+      wallet: userWallet,
+    };
   }
 }
