@@ -6,7 +6,10 @@ export default function globalExceptionHandler(
   response: Response,
   next: NextFunction
 ) {
-  return response
-    .status(error.cause.status ?? 500)
-    .send({ message: error.message, statusCode: error.cause.status });
+  const status = error.cause.status;
+
+  return response.status(status).send({
+    message: error.message ?? "Internal server error.",
+    statusCode: status,
+  });
 }

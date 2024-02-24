@@ -5,7 +5,7 @@ import pool from "./http/lib/pg";
 import dbSetup from "./http/utils/dbSetup";
 import "dotenv/config";
 import "express-async-errors";
-import globalExceptionHandler from "./http/middlewares/GlobalExceptionHandler";
+import globalExceptionHandler from "./http/middlewares/globalExceptionHandler";
 
 const app: Express = express();
 

@@ -1,7 +1,6 @@
-import { QueryResult } from "pg";
-import { IUser, IUserCreation } from "../@types/types";
-import pool from "../lib/pg";
+import { IUser, IUserCreation, IUserModel } from "../@types/types";
 import { UserRepository } from "../repositories/userRepository";
+import pool from "../lib/pg";
 
 export default class UserModel implements UserRepository {
   async findByEmail(email: string): Promise<IUser | null> {
@@ -10,11 +9,20 @@ export default class UserModel implements UserRepository {
       [email]
     );
 
-    const find: IUser | undefined = rows[0];
+    const find: IUserModel | undefined = rows[0];
 
     if (!find) return null;
 
-    return find;
+    const userDtoResponse: IUser = {
+      id: find.id,
+      email: find.email,
+      fullName: find.full_name,
+      passwordHash: find.password_hash,
+      createdAt: find.created_at,
+      updatedAt: find.updated_at,
+    };
+
+    return userDtoResponse;
   }
 
   async save(newUser: IUserCreation): Promise<IUser> {
