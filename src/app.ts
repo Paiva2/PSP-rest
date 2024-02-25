@@ -6,12 +6,14 @@ import dbSetup from "./http/utils/dbSetup";
 import "dotenv/config";
 import "express-async-errors";
 import globalExceptionHandler from "./http/middlewares/globalExceptionHandler";
+import transactionRoutes from "./http/routes/transactionRoutes";
 
 const app: Express = express();
 
 app.use(bodyParser.json());
 
 userRoutes(app);
+transactionRoutes(app);
 
 (async function dbConnectionTest() {
   try {

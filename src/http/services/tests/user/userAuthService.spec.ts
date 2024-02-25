@@ -1,9 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import UserAuthService from "../../user/userAuthService";
 import InMemoryUserRepository from "../../../in-memory/inMemoryUserRepository";
-import BadRequestException from "../../../exceptions/BadRequestException";
-import NotFoundException from "../../../exceptions/NotFoundException";
-import ForbiddenException from "../../../exceptions/ForbiddenException";
 import bcrypt from "bcryptjs";
 
 describe("User auth service", () => {
@@ -48,9 +45,7 @@ describe("User auth service", () => {
         email: "",
         password: "123456",
       });
-    }).rejects.toThrowError(
-      new BadRequestException("E-mail DTO can't be null.")
-    );
+    }).rejects.toThrow("E-mail DTO can't be null.");
   });
 
   it("should throw an exception if New User Password DTO are null", async () => {
@@ -59,9 +54,7 @@ describe("User auth service", () => {
         email: "johndoe@test.com",
         password: "",
       });
-    }).rejects.toThrowError(
-      new BadRequestException("Password DTO can't be null.")
-    );
+    }).rejects.toThrow("Password DTO can't be null.");
   });
 
   it("should throw an exception if user isn't registered", async () => {
@@ -70,7 +63,7 @@ describe("User auth service", () => {
         email: "inexistent@email.com",
         password: "123456",
       });
-    }).rejects.toThrowError(new NotFoundException("User not found."));
+    }).rejects.toThrow("User not found.");
   });
 
   it("should throw an exception if credentials are wrong", async () => {
@@ -79,6 +72,6 @@ describe("User auth service", () => {
         email: "johndoe@test.com",
         password: "wrongpass",
       });
-    }).rejects.toThrowError(new ForbiddenException("Wrong credentials."));
+    }).rejects.toThrow("Wrong credentials.");
   });
 });

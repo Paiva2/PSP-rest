@@ -7,13 +7,14 @@ export default function globalExceptionHandler(
   next: NextFunction
 ) {
   if (error instanceof Error) {
+    //@ts-ignore
     const status = error.cause.status ? error.cause.status : 500;
 
     return response.status(status).send({
       message: error.message ?? "Internal server error.",
       statusCode: status,
     });
+  } else {
+    next();
   }
-
-  next();
 }

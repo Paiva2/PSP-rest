@@ -1,11 +1,6 @@
-enum PAYMENT_METHOD {
-  DEBIT = "debit_card",
-  CREDIT = "credit_card",
-}
-enum PAYABLE_STATUS {
-  PAID = "paid",
-  WAITING_FUNDS = "waiting_funds",
-}
+import { PAYABLE_STATUS } from "../enums/payableStatus";
+import { PAYMENT_METHOD } from "../enums/paymentMethod";
+
 export interface IUser {
   id: string;
   email: string;
@@ -51,7 +46,7 @@ export interface ITransaction {
   id?: string;
   value: Big;
   method: PAYMENT_METHOD;
-  cardNumber: number;
+  cardNumber: string;
   cardValidationDate: string;
   cardCvv: number;
   description: string;
@@ -66,7 +61,7 @@ export interface ITransactionModel {
   id?: string;
   value: Big;
   method: PAYMENT_METHOD;
-  card_number: number;
+  card_number: string;
   card_validation_date: string;
   card_cvv: number;
   description: string;

@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Client, Pool } from "pg";
 import "dotenv/config";
 
 const config = {
@@ -10,5 +10,7 @@ const config = {
 };
 
 const pool = new Pool(config);
+
+export const pgClient = new Client(config);
 
 export default pool;

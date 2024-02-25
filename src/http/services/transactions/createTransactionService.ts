@@ -1,55 +1,20 @@
 import { UserRepository } from "../../repositories/userRepository";
 import { WalletRepository } from "../../repositories/walletRepository";
+import { PAYMENT_METHOD } from "../../enums/paymentMethod";
+import { PAYABLE_STATUS } from "../../enums/payableStatus";
+import type { IPayable, ITransaction } from "../../@types/types";
 import BadRequestException from "../../exceptions/BadRequestException";
 import NotFoundException from "../../exceptions/NotFoundException";
 import TransactionRepository from "../../repositories/transactionRepository";
 import ForbiddenException from "../../exceptions/ForbiddenException";
 import Big from "big.js";
 import dayjs from "dayjs";
-
-// REMOVE FROM HERE LATER
-enum PAYMENT_METHOD {
-  DEBIT = "debit_card",
-  CREDIT = "credit_card",
-}
-enum PAYABLE_STATUS {
-  PAID = "paid",
-  WAITING_FUNDS = "waiting_funds",
-}
-
-interface ITransaction {
-  id?: string;
-  value: Big;
-  method: PAYMENT_METHOD;
-  cardNumber: number;
-  cardValidationDate: string;
-  cardCvv: number;
-  description: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-
-  payerId: string;
-  receiverId: string;
-}
-
-interface IPayable {
-  id: string;
-  status: PAYABLE_STATUS;
-  value: Big;
-  fee: Big;
-  paymentDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
-
-  transactionId: string;
-}
-
-//
+import ConflictException from "../../exceptions/ConflictException";
 
 interface CreateTransactionServiceRequest {
   value: string;
   method: PAYMENT_METHOD;
-  cardNumber: number;
+  cardNumber: string;
   cardValidationDate: string;
   cardCvv: number;
   description: string;
@@ -94,16 +59,15 @@ export class CreateTransactionService {
       throw new BadRequestException("Invalid card validation month.");
     }
 
-    const validationCardDate = dayjs();
-
-    validationCardDate.set("year", +cardYear);
-    validationCardDate.set("month", +cardMonth - 1);
-
-    const cardDateFormat = validationCardDate.endOf("month");
+    const validationCardDate = dayjs()
+      .set("year", +cardYear)
+      .set("month", +cardMonth - 1)
+      .endOf("month")
+      .set("hour", 0);
 
     const today = dayjs();
 
-    if (cardDateFormat.isBefore(today)) {
+    if (validationCardDate.isBefore(today)) {
       throw new ForbiddenException(
         "Card validation date can't be before today."
       );
@@ -111,6 +75,7 @@ export class CreateTransactionService {
 
     const value = transaction.value
       .replace("R$ ", "")
+      .replace("$ ", "")
       .replaceAll(".", "")
       .replace(",", ".");
 
@@ -125,6 +90,7 @@ export class CreateTransactionService {
       transaction: {
         ...transaction,
         value: convertToCents,
+        cardNumber: this.maskCardNumber(transaction.cardNumber),
       },
       payable: transactionPayable,
     });
@@ -132,14 +98,18 @@ export class CreateTransactionService {
     if (handleTransaction.payable.status === "paid") {
       await this.walletRepository?.receivePayment({
         walletOwner: transaction.receiverId,
-        value: handleTransaction.payable.value,
+        value: new Big(handleTransaction.payable.value),
       });
     }
 
     return handleTransaction;
   }
 
-  private handleTransactionPayable(transaction: {
+  protected maskCardNumber(cNumber: string): string {
+    return `**** **** **** ${cNumber.substring(15, cNumber.length)}`;
+  }
+
+  public handleTransactionPayable(transaction: {
     method: PAYMENT_METHOD;
     value: Big;
   }): {
@@ -160,7 +130,7 @@ export class CreateTransactionService {
     const payableDate =
       payableStatus === "paid"
         ? dayjs().toDate()
-        : dayjs().add(30, "day").toDate();
+        : dayjs().add(30, "days").toDate();
 
     const payableFeePercentage =
       transaction.method === "debit_card" ? new Big(0.03) : new Big(0.05);
@@ -179,29 +149,38 @@ export class CreateTransactionService {
 
   private serviceParamsCheck(transaction: CreateTransactionServiceRequest) {
     if (!transaction.payerId) {
-      throw new BadRequestException("Invalid user id.");
+      throw new BadRequestException("Invalid payer id.");
     }
 
     if (!transaction.receiverId) {
-      throw new BadRequestException("Invalid user id.");
+      throw new BadRequestException("Invalid receiver id.");
+    }
+
+    if (transaction.receiverId === transaction.payerId) {
+      throw new ConflictException("Payer id can't be the same as receiver id.");
     }
 
     if (!transaction.cardCvv || String(transaction.cardCvv).length < 3) {
       throw new BadRequestException("Invalid card CVV.");
     }
 
+    const cardNumber = transaction.cardNumber.replaceAll(" ", "");
+
     if (
       !transaction.cardNumber ||
-      String(transaction.cardNumber).length > 16 ||
-      String(transaction.cardNumber).length < 13
+      cardNumber.trim().length > 16 ||
+      cardNumber.trim().length < 15
     ) {
       throw new BadRequestException("Invalid card number.");
     }
 
+    const expCardRegex = /^(0[1-9]|1[0-2])\/\d{4}$/;
+
     if (
       !transaction.cardValidationDate ||
       String(transaction.cardValidationDate).length < 7 ||
-      String(transaction.cardValidationDate).length > 7
+      String(transaction.cardValidationDate).length > 7 ||
+      !String(expCardRegex.test(transaction.cardValidationDate))
     ) {
       throw new BadRequestException("Invalid card validation date.");
     }
