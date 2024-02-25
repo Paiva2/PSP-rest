@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import UserAuthService from "../userAuthService";
+import UserAuthService from "../../user/userAuthService";
 import InMemoryUserRepository from "../../../in-memory/inMemoryUserRepository";
-import bcrypt from "bcryptjs";
 import BadRequestException from "../../../exceptions/BadRequestException";
 import NotFoundException from "../../../exceptions/NotFoundException";
 import ForbiddenException from "../../../exceptions/ForbiddenException";
+import bcrypt from "bcryptjs";
 
 describe("User auth service", () => {
   let userRepository: InMemoryUserRepository;

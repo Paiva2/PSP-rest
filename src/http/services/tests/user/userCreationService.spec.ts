@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { UserCreationService } from "../userCreationService";
+import { UserCreationService } from "../../user/userCreationService";
 import InMemoryUserRepository from "../../../in-memory/inMemoryUserRepository";
-import brcrypt from "bcryptjs";
 import BadRequestException from "../../../exceptions/BadRequestException";
 import ConflictException from "../../../exceptions/ConflictException";
 import InMemoryWalletRepository from "../../../in-memory/inMemoryWalletRepository";
+import brcrypt from "bcryptjs";
+import Big from "big.js";
 
 const newUser = {
   email: "johndoe@test.com",
@@ -44,8 +45,7 @@ describe("User creation service tests", () => {
 
       wallet: expect.objectContaining({
         id: expect.any(String),
-        available: 0,
-        waitingFunds: 0,
+        available: new Big(0),
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
         walletOwner: performCreation.user.id,

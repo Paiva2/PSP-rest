@@ -1,9 +1,12 @@
 import { IUser, IUserCreation } from "../@types/types";
 import { UserRepository } from "../repositories/userRepository";
+import { WalletRepository } from "../repositories/walletRepository";
 import { randomUUID } from "node:crypto";
 
 export default class InMemoryUserRepository implements UserRepository {
   protected users = [] as IUser[];
+
+  constructor(private readonly walletRepository?: WalletRepository) {}
 
   public async save(newUser: IUserCreation): Promise<IUser> {
     const user = {
@@ -24,7 +27,14 @@ export default class InMemoryUserRepository implements UserRepository {
 
     if (!findUserByEmail) return null;
 
-    return findUserByEmail;
+    const userWallet = await this.walletRepository?.findByWalletOwnerId(
+      findUserByEmail?.id
+    );
+
+    return {
+      ...findUserByEmail,
+      wallet: userWallet!,
+    };
   }
 
   async findById(id: string): Promise<IUser | null> {
@@ -32,6 +42,13 @@ export default class InMemoryUserRepository implements UserRepository {
 
     if (!findUserById) return null;
 
-    return findUserById;
+    const userWallet = await this.walletRepository?.findByWalletOwnerId(
+      findUserById?.id
+    );
+
+    return {
+      ...findUserById,
+      wallet: userWallet!,
+    };
   }
 }

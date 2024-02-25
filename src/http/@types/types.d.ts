@@ -1,3 +1,11 @@
+enum PAYMENT_METHOD {
+  DEBIT = "debit_card",
+  CREDIT = "credit_card",
+}
+enum PAYABLE_STATUS {
+  PAID = "paid",
+  WAITING_FUNDS = "waiting_funds",
+}
 export interface IUser {
   id: string;
   email: string;
@@ -5,6 +13,7 @@ export interface IUser {
   passwordHash: string;
   createdAt: Date;
   updatedAt: Date;
+  wallet?: IWallet;
 }
 
 export interface IUserModel {
@@ -24,8 +33,7 @@ export interface IUserCreation {
 
 export interface IWalletModel {
   id: string;
-  available: number;
-  waiting_funds: number;
+  available: Big;
   created_at: Date;
   updated_at: Date;
   wallet_owner: string;
@@ -33,9 +41,75 @@ export interface IWalletModel {
 
 export interface IWallet {
   id: string;
-  available: number;
-  waitingFunds: number;
+  available: Big;
   createdAt: Date;
   updatedAt: Date;
   walletOwner: string;
+}
+
+export interface ITransaction {
+  id?: string;
+  value: Big;
+  method: PAYMENT_METHOD;
+  cardNumber: number;
+  cardValidationDate: string;
+  cardCvv: number;
+  description: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+
+  payerId: string;
+  receiverId: string;
+}
+
+export interface ITransactionModel {
+  id?: string;
+  value: Big;
+  method: PAYMENT_METHOD;
+  card_number: number;
+  card_validation_date: string;
+  card_cvv: number;
+  description: string;
+  created_at?: Date;
+  updated_at?: Date;
+
+  payer_id: string;
+  receiver_id: string;
+}
+
+export interface IPayable {
+  id: string;
+  status: PAYABLE_STATUS;
+  value: Big;
+  fee: Big;
+  paymentDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
+
+  transactionId: string;
+}
+
+export interface IPayableModel {
+  id: string;
+  status: PAYABLE_STATUS;
+  value: Big;
+  fee: Big;
+  payment_date: Date;
+  created_at: Date;
+  updated_at: Date;
+
+  transaction_id: string;
+}
+
+export interface IPayableCreation {
+  transactionId?: string;
+  payableDate: Date;
+  payableStatus: PAYABLE_STATUS;
+  payableFee: Big.Big;
+  payableAmount: Big.Big;
+}
+
+export interface ITransactionSave {
+  transaction: ITransaction;
+  payable: IPayableCreation;
 }

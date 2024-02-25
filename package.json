@@ -1,20 +1,19 @@
 {
-  "name": "software-engineer-backend",
+  "name": "psp-challenge",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/server.ts",
+  "main": "./src/server.ts",
   "scripts": {
     "dev": "ts-node-dev --inspect --transpile-only src/server.ts",
     "build": "tsc",
-    "test": "vitest run",
-    "test:watch": "vitest dev"
+    "test": "vitest run --dir src/http/services/tests",
+    "test:watch": "vitest dev --dir src/http/services/tests"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/big.js": "^6.2.2",
     "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.11.20",
     "@types/pg": "^8.11.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
@@ -24,11 +23,15 @@
   "dependencies": {
     "@types/express": "^4.17.21",
     "bcryptjs": "^2.4.3",
+    "big.js": "^6.2.1",
     "body-parser": "^1.20.2",
+    "dayjs": "^1.11.10",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "zod": "^3.22.4",
+    "zod-validation-error": "^3.0.2"
   }
 }

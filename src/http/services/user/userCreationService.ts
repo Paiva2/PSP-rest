@@ -2,8 +2,8 @@ import { IUser, IUserCreation, IWallet } from "../../@types/types";
 import { UserRepository } from "../../repositories/userRepository";
 import BadRequestException from "../../exceptions/BadRequestException";
 import ConflictException from "../../exceptions/ConflictException";
-import bcrypt from "bcryptjs";
 import { WalletRepository } from "../../repositories/walletRepository";
+import bcrypt from "bcryptjs";
 
 interface UserCreationServiceResponse {
   user: IUser;
