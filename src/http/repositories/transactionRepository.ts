@@ -5,4 +5,6 @@ export default interface TransactionRepository {
     transaction: ITransaction;
     payable: IPayable;
   }>;
+
+  findById(transactionId: string): Promise<ITransaction | null>;
 }

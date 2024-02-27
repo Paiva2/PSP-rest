@@ -1,5 +1,5 @@
 import Big from "big.js";
-import { IWallet } from "../@types/types";
+import { IPayableReceivers, IWallet } from "../@types/types";
 
 export interface WalletRepository {
   create(walletOwnerId: string): Promise<IWallet>;
@@ -10,4 +10,6 @@ export interface WalletRepository {
     walletOwner: string;
     value: Big;
   }): Promise<IWallet>;
+
+  receiveDayPayments(payments: IPayableReceivers[]): Promise<IWallet[]>;
 }

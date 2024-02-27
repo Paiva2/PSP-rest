@@ -3,10 +3,11 @@ import bodyParser from "body-parser";
 import userRoutes from "./http/routes/userRoutes";
 import pool from "./http/lib/pg";
 import dbSetup from "./http/utils/dbSetup";
-import "dotenv/config";
-import "express-async-errors";
 import globalExceptionHandler from "./http/middlewares/globalExceptionHandler";
 import transactionRoutes from "./http/routes/transactionRoutes";
+import "dotenv/config";
+import "express-async-errors";
+import handleTasks from "./http/cron/tasks";
 
 const app: Express = express();
 
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 
 userRoutes(app);
 transactionRoutes(app);
+handleTasks();
 
 (async function dbConnectionTest() {
   try {

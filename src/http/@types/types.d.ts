@@ -1,3 +1,4 @@
+import Big from "big.js";
 import { PAYABLE_STATUS } from "../enums/payableStatus";
 import { PAYMENT_METHOD } from "../enums/paymentMethod";
 
@@ -107,4 +108,20 @@ export interface IPayableCreation {
 export interface ITransactionSave {
   transaction: ITransaction;
   payable: IPayableCreation;
+}
+
+export interface IPayableReceivers {
+  payableId: string;
+  transactionId: string;
+  receiverId: string;
+  walletId: string;
+  value: Big;
+}
+
+export interface IPayableReceiversModel {
+  payable_id: string;
+  transaction_id: string;
+  receiver_id: string;
+  wallet_id: string;
+  value: Big;
 }

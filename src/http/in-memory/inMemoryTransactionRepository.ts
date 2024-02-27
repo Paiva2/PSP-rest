@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 export default class InMemoryTransactionRepository
   implements TransactionRepository
 {
-  protected transactions = [] as ITransaction[];
+  public transactions = [] as ITransaction[];
 
   public constructor(private readonly payableRepository?: PayableRepository) {}
 
@@ -39,5 +39,15 @@ export default class InMemoryTransactionRepository
       transaction: newTransaction,
       payable: newPayable!,
     };
+  }
+
+  public async findById(transactionId: string): Promise<ITransaction | null> {
+    const find = this.transactions.find(
+      (transaction) => transaction.id === transactionId
+    );
+
+    if (!find) return null;
+
+    return find;
   }
 }

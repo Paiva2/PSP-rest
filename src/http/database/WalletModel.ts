@@ -1,5 +1,5 @@
 import { Big } from "big.js";
-import { IWallet, IWalletModel } from "../@types/types";
+import { IPayableReceivers, IWallet, IWalletModel } from "../@types/types";
 import { WalletRepository } from "../repositories/walletRepository";
 import pool from "../lib/pg";
 
@@ -65,5 +65,28 @@ export default class WalletModel implements WalletRepository {
       createdAt: wallet.created_at,
       updatedAt: wallet.updated_at,
     };
+  }
+
+  async receiveDayPayments(payments: IPayableReceivers[]): Promise<IWallet[]> {
+    const query: string[] = [];
+
+    payments.forEach((payment, idx) => {
+      query.push(`
+      WITH current_val${idx} AS (
+        SELECT available FROM tb_wallets WHERE id = '${payment.walletId}'
+      )
+  
+      UPDATE tb_wallets
+      SET available = (SELECT * FROM current_val${idx}) + ${new Big(
+        payment.value
+      ).toNumber()},
+        updated_at = now()
+      WHERE id = '${payment.walletId}';
+      `);
+    });
+
+    const { rows } = await pool.query(query.join("--").replaceAll("--", ""));
+
+    return rows;
   }
 }

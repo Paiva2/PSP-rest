@@ -96,4 +96,29 @@ export default class TransactionModel implements TransactionRepository {
       },
     };
   }
+
+  async findById(transactionId: string): Promise<ITransaction | null> {
+    const { rows } = await pool.query(
+      "SELECT * FROM tb_transactions WHERE id = $1",
+      [transactionId]
+    );
+
+    const find: ITransactionModel = rows[0];
+
+    if (!find) return null;
+
+    return {
+      id: find.id,
+      cardCvv: find.card_cvv,
+      cardNumber: find.card_number,
+      cardValidationDate: find.card_validation_date,
+      description: find.description,
+      method: find.method,
+      payerId: find.payer_id,
+      receiverId: find.receiver_id,
+      value: find.value,
+      createdAt: find.created_at,
+      updatedAt: find.updated_at,
+    };
+  }
 }
