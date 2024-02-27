@@ -50,7 +50,7 @@ export default class PayableModel implements PayableRepository {
     FROM tb_payables p
     LEFT JOIN tb_transactions tc ON tc.id = p.transaction_id
     JOIN tb_wallets wall on wall.wallet_owner = tc.receiver_id
-    WHERE p.status  = 'waiting_funds' and DATE(p.payment_date) = CURRENT_DATE;`);
+    WHERE p.status = 'waiting_funds' and DATE(p.payment_date) = CURRENT_DATE;`);
 
     const payablesOfDay: IPayableReceiversModel[] = rows;
 

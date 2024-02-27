@@ -4,6 +4,7 @@ import PayableRepository from "../repositories/payableRepository";
 import InMemoryWalletRepository from "./inMemoryWalletRepository";
 import InMemoryTransactionRepository from "./inMemoryTransactionRepository";
 import dayjs from "dayjs";
+import { PAYABLE_STATUS } from "../enums/payableStatus";
 
 export default class InMemoryPayableRepository implements PayableRepository {
   protected payables = [] as IPayable[];
@@ -46,23 +47,29 @@ export default class InMemoryPayableRepository implements PayableRepository {
     return payable;
   }
 
-  //FIX UPDATE STATUS
   public async receiversOfDay(): Promise<IPayableReceivers[]> {
     let receivers = [] as IPayableReceivers[];
 
-    await this.payables.forEach(async (payable) => {
+    await this.payables.forEach(async (payable, idx) => {
       if (!dayjs(payable.paymentDate).isSame(dayjs())) return;
 
       const payableTransaction = await this.transactionRepository?.findById(
         payable.transactionId
       );
 
+      const findPayable = this.payables.find((p) => p.id === payable.id);
+
       const payableReceiverWallet =
         await this.walletRepository?.findByWalletOwnerId(
           payableTransaction?.receiverId!
         );
 
-      if (!payableTransaction || !payableReceiverWallet) return;
+      if (!payableTransaction || !payableReceiverWallet || !findPayable) return;
+
+      this.payables.splice(idx, 1, {
+        ...findPayable,
+        status: PAYABLE_STATUS.PAID,
+      });
 
       receivers.push({
         transactionId: payable.transactionId,
@@ -74,5 +81,13 @@ export default class InMemoryPayableRepository implements PayableRepository {
     });
 
     return receivers;
+  }
+
+  public async findById(id: string) {
+    const find = this.payables.find((payable) => payable.id === id);
+
+    if (!find) return null;
+
+    return find;
   }
 }

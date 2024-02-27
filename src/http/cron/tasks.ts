@@ -19,8 +19,9 @@ export const cronTasks: ICronTasks[] = [
 
       await waitingFundsTransactionService.exec();
     },
-    onComplete: () =>
-      console.log("Daily task done. Transactions waiting for funds handled."),
+    onComplete: () => {
+      return console.log("Daily task done. Transactions waiting for funds handled.")
+    },
   },
 ];
 

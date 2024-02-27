@@ -10,6 +10,7 @@ import InMemoryTransactionRepository from "../../../in-memory/inMemoryTransactio
 import WaitingFundsTransactionService from "../../transactions/waitingFundsTransactionService";
 import Big from "big.js";
 import dayjs from "dayjs";
+import { PAYABLE_STATUS } from "../../../enums/payableStatus";
 
 const firstUser = {
   email: "johndoe@test.com",
@@ -89,7 +90,7 @@ describe("Waiting funds transaction service", () => {
   });
 
   it("should process transactions from that day that was made with CREDIT", async () => {
-    await createTransactionService.exec({
+    const { payable: firstPayable } = await createTransactionService.exec({
       cardCvv: 899,
       cardNumber: "9999 9999 9999 9999",
       cardValidationDate: "12/2080",
@@ -100,7 +101,7 @@ describe("Waiting funds transaction service", () => {
       value: "R$ 1.000,20",
     });
 
-    await createTransactionService.exec({
+    const { payable: secondPayable } = await createTransactionService.exec({
       cardCvv: 899,
       cardNumber: "9999 9999 9999 9999",
       cardValidationDate: "12/2080",
@@ -111,7 +112,7 @@ describe("Waiting funds transaction service", () => {
       value: "R$ 2.500,00",
     });
 
-    await createTransactionService.exec({
+    const { payable: thirdPayable } = await createTransactionService.exec({
       cardCvv: 899,
       cardNumber: "9999 9999 9999 9999",
       cardValidationDate: "12/2080",
@@ -171,6 +172,20 @@ describe("Waiting funds transaction service", () => {
         }),
       ])
     );
+
+    const checkFirstPayableStatus = await payableRepository.findById(
+      firstPayable.id
+    );
+    const checkSecondPayableStatus = await payableRepository.findById(
+      secondPayable.id
+    );
+    const checkThirdPayableStatus = await payableRepository.findById(
+      thirdPayable.id
+    );
+
+    expect(checkFirstPayableStatus?.status).toEqual(PAYABLE_STATUS.PAID);
+    expect(checkSecondPayableStatus?.status).toEqual(PAYABLE_STATUS.PAID);
+    expect(checkThirdPayableStatus?.status).toEqual(PAYABLE_STATUS.PAID);
 
     const firstUserReceivingWallet = await walletRepository.findByWalletOwnerId(
       userReceiving.id

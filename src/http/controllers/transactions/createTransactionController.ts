@@ -15,11 +15,14 @@ export default class CreateTransactionController {
       request.headers.authorization!.replace("Bearer ", "")
     );
 
+  try {
     const transactionCreated = await createTransactionService.exec({
       ...transaction,
       payerId: userToken,
     });
-
     return response.status(201).send(transactionCreated);
+  }catch(e) {
+    console.log(e)
   }
+}
 }

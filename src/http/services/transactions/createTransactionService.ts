@@ -74,10 +74,9 @@ export class CreateTransactionService {
     }
 
     const value = transaction.value
-      .replace("R$ ", "")
-      .replace("$ ", "")
-      .replaceAll(".", "")
-      .replace(",", ".");
+    .replace(/(?:R\$|\$)\s/g, "")
+    .replace(/\./g, "")
+    .replace(/,/g, ".")
 
     const convertToCents = new Big(+value / 100);
 
@@ -164,7 +163,7 @@ export class CreateTransactionService {
       throw new BadRequestException("Invalid card CVV.");
     }
 
-    const cardNumber = transaction.cardNumber.replaceAll(" ", "");
+    const cardNumber = transaction.cardNumber.replace(/\s/g, "");
 
     if (
       !transaction.cardNumber ||
