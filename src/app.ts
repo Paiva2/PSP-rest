@@ -5,9 +5,9 @@ import pool from "./http/lib/pg";
 import dbSetup from "./http/utils/dbSetup";
 import globalExceptionHandler from "./http/middlewares/globalExceptionHandler";
 import transactionRoutes from "./http/routes/transactionRoutes";
+import handleTasks from "./http/cron/tasks";
 import "dotenv/config";
 import "express-async-errors";
-import handleTasks from "./http/cron/tasks";
 
 const app: Express = express();
 
