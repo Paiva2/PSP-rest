@@ -1,10 +1,10 @@
-import { randomUUID } from "node:crypto";
-import { IPayableCreation, IPayable, IPayableReceivers } from "../@types/types";
 import PayableRepository from "../repositories/payableRepository";
 import InMemoryWalletRepository from "./inMemoryWalletRepository";
 import InMemoryTransactionRepository from "./inMemoryTransactionRepository";
-import dayjs from "dayjs";
+import { randomUUID } from "node:crypto";
+import { IPayableCreation, IPayable, IPayableReceivers } from "../@types/types";
 import { PAYABLE_STATUS } from "../enums/payableStatus";
+import dayjs from "dayjs";
 
 export default class InMemoryPayableRepository implements PayableRepository {
   protected payables = [] as IPayable[];
@@ -101,5 +101,19 @@ export default class InMemoryPayableRepository implements PayableRepository {
     if (!find) return null;
 
     return find;
+  }
+
+  async findAllUserWaitingFunds(userId: string): Promise<IPayable[]> {
+    const userTransactions = this.transactionRepository.transactions
+      .filter((transaction) => transaction.receiverId === userId)
+      .map((transaction) => transaction.id);
+
+    const getAllWaitingFunds = this.payables.filter(
+      (payable) =>
+        userTransactions.includes(payable.transactionId) &&
+        payable.status === PAYABLE_STATUS.WAITING_FUNDS
+    );
+
+    return getAllWaitingFunds;
   }
 }

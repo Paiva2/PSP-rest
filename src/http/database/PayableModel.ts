@@ -7,6 +7,8 @@ import {
 } from "../@types/types";
 import pool, { pgClient } from "../lib/pg";
 import PayableRepository from "../repositories/payableRepository";
+import formatBrl from "../utils/formatBrl";
+import Big from "big.js";
 
 export default class PayableModel implements PayableRepository {
   public async save(newPayable: IPayableCreation): Promise<IPayable> {
@@ -43,10 +45,10 @@ export default class PayableModel implements PayableRepository {
   async receiversOfDay(): Promise<IPayableReceivers[]> {
     const { rows } = await pool.query(`
     SELECT 
-    p.id as payable_id, 
-    p.transaction_id, 
-    tc.receiver_id, wall.id as wallet_id,
-    p.value 
+      p.id as payable_id, 
+      p.transaction_id, 
+      tc.receiver_id, wall.id as wallet_id,
+      p.value 
     FROM tb_payables p
     LEFT JOIN tb_transactions tc ON tc.id = p.transaction_id
     JOIN tb_wallets wall on wall.wallet_owner = tc.receiver_id
@@ -99,5 +101,41 @@ export default class PayableModel implements PayableRepository {
       createdAt: find.created_at,
       updatedAt: find.updated_at,
     };
+  }
+
+  async findAllUserWaitingFunds(userId: string): Promise<IPayable[]> {
+    const { rows } = await pool.query(
+      `
+      SELECT pb.id, 
+        pb.status, pb.value, 
+        pb.fee, 
+        pb.payment_date, 
+        pb.created_at, 
+        pb.updated_at, 
+        pb.transaction_id 
+      FROM tb_payables pb 
+      INNER JOIN tb_transactions tc 
+      ON tc.receiver_id = $1 AND tc.id = pb.transaction_id 
+      WHERE pb.status = 'waiting_funds'; 
+    `,
+      [userId]
+    );
+
+    if (!rows.length) return [];
+
+    const payables: IPayableModel[] = rows;
+
+    return payables.map((payable) => {
+      return {
+        id: payable.id,
+        status: payable.status,
+        value: payable.value,
+        fee: payable.fee,
+        paymentDate: payable.payment_date,
+        transactionId: payable.transaction_id,
+        createdAt: payable.created_at,
+        updatedAt: payable.updated_at,
+      };
+    });
   }
 }

@@ -3,6 +3,8 @@ import { zodDtoValidation } from "../middlewares/zodDtoValidation";
 import { authUserDTO, userCreationDTO } from "../dtos/userDtos";
 import UserCreationController from "../controllers/user/UserCreationController";
 import UserAuthController from "../controllers/user/userAuthController";
+import jwtHandler from "../middlewares/jwtHandler";
+import CheckOwnWalletController from "../controllers/user/checkOwnWalletController";
 
 export default function userRoutes(app: Express) {
   app.post(
@@ -16,4 +18,6 @@ export default function userRoutes(app: Express) {
     [zodDtoValidation(authUserDTO)],
     UserAuthController.handle
   );
+
+  app.get("/wallet", [jwtHandler], CheckOwnWalletController.handle);
 }

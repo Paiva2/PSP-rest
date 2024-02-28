@@ -23,7 +23,7 @@ const secondUser = {
   fullName: "Receiver",
 };
 
-describe("Create transaction service", () => {
+describe("List own transactions service", () => {
   let userRepository: InMemoryUserRepository;
   let transactionRepository: InMemoryTransactionRepository;
   let walletRepository: InMemoryWalletRepository;

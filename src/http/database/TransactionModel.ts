@@ -10,6 +10,7 @@ import {
 } from "../@types/types";
 import pool from "../lib/pg";
 import TransactionRepository from "../repositories/transactionRepository";
+import formatBrl from "../utils/formatBrl";
 
 export default class TransactionModel implements TransactionRepository {
   public async save({ transaction, payable }: ITransactionSave): Promise<{
@@ -165,7 +166,7 @@ export default class TransactionModel implements TransactionRepository {
         ...acc,
         {
           id: item.id,
-          value: this.formatBrl(new Big(item.value)),
+          value: formatBrl(new Big(item.value)),
           method: item.method,
           cardNumber: item.card_number,
           cardValidationDate: item.card_validation_date,
@@ -178,8 +179,8 @@ export default class TransactionModel implements TransactionRepository {
           payable: {
             id: item.payableid,
             status: item.status,
-            value: this.formatBrl(new Big(item.payablevalue)),
-            fee: this.formatBrl(new Big(item.fee)),
+            value: formatBrl(new Big(item.payablevalue)),
+            fee: formatBrl(new Big(item.fee)),
             paymentDate: item.payment_date,
             createdAt: item.payablecreatedat,
             updatedAt: item.payableupdatedat,
@@ -194,12 +195,5 @@ export default class TransactionModel implements TransactionRepository {
       totalItens: formatReturn.length,
       transactions: formatReturn,
     };
-  }
-
-  protected formatBrl(number: Big) {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(number.mul(100).toNumber());
   }
 }

@@ -6,4 +6,6 @@ export default interface PayableRepository {
   receiversOfDay(): Promise<IPayableReceivers[]>;
 
   findByTransactionId(transactionId: string): Promise<IPayable | null>;
+
+  findAllUserWaitingFunds(userId: string): Promise<IPayable[]>;
 }

@@ -1,17 +1,36 @@
-import { IUser, IUserCreation, IUserModel } from "../@types/types";
+import { IUser, IUserCreation } from "../@types/types";
 import { UserRepository } from "../repositories/userRepository";
+import formatBrl from "../utils/formatBrl";
 import pool from "../lib/pg";
+import Big from "big.js";
 
 export default class UserModel implements UserRepository {
   async findByEmail(email: string): Promise<IUser | null> {
     const { rows } = await pool.query(
-      "SELECT * FROM tb_users WHERE email = $1",
+      `
+      SELECT
+          usr.id, 
+          usr.email, 
+          usr.full_name, 
+          usr.password_hash, 
+          usr.created_at, 
+          usr.updated_at,
+          wall.id AS wallet_id,
+          wall.available,
+          wall.updated_at AS wallet_updated_at,
+          wall.created_at AS wallet_created_at,
+          wall.wallet_owner
+        FROM tb_users usr 
+        LEFT JOIN tb_wallets wall 
+        ON wall.wallet_owner = usr.id 
+        WHERE usr.email = $1;
+      `,
       [email]
     );
 
-    const find: IUserModel | undefined = rows[0];
+    if (!rows.length) return null;
 
-    if (!find) return null;
+    const find = rows[0];
 
     const userDtoResponse: IUser = {
       id: find.id,
@@ -20,6 +39,13 @@ export default class UserModel implements UserRepository {
       passwordHash: find.password_hash,
       createdAt: find.created_at,
       updatedAt: find.updated_at,
+      wallet: {
+        id: find.wallet_id,
+        available: find.available,
+        createdAt: find.wallet_created_at,
+        updatedAt: find.wallet_updated_at,
+        walletOwner: find.wallet_owner,
+      },
     };
 
     return userDtoResponse;
@@ -37,13 +63,30 @@ export default class UserModel implements UserRepository {
   }
 
   async findById(id: string): Promise<IUser | null> {
-    const { rows } = await pool.query("SELECT * FROM tb_users WHERE id = $1", [
-      id,
-    ]);
+    const { rows } = await pool.query(
+      ` 
+      SELECT 
+        usr.id, 
+        usr.email, 
+        usr.full_name, 
+        usr.password_hash, 
+        usr.created_at, 
+        usr.updated_at,
+        wall.id AS wallet_id,
+        wall.available,
+        wall.updated_at AS wallet_updated_at,
+        wall.created_at AS wallet_created_at,
+        wall.wallet_owner
+      FROM tb_users usr 
+      LEFT JOIN tb_wallets wall ON wall.wallet_owner = usr.id 
+      WHERE usr.id = $1;
+      `,
+      [id]
+    );
 
-    const find: IUserModel | undefined = rows[0];
+    if (!rows.length) return null;
 
-    if (!find) return null;
+    const find = rows[0];
 
     const userDtoResponse: IUser = {
       id: find.id,
@@ -52,6 +95,13 @@ export default class UserModel implements UserRepository {
       passwordHash: find.password_hash,
       createdAt: find.created_at,
       updatedAt: find.updated_at,
+      wallet: {
+        id: find.wallet_id,
+        available: find.available,
+        createdAt: find.wallet_created_at,
+        updatedAt: find.wallet_updated_at,
+        walletOwner: find.wallet_owner,
+      },
     };
 
     return userDtoResponse;
