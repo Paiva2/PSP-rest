@@ -1,4 +1,10 @@
-import { ITransaction, IPayable, ITransactionSave } from "../@types/types";
+import {
+  ITransaction,
+  IPayable,
+  ITransactionSave,
+  ITransactionAndPayable,
+  ITransactionAndPayablePaginated,
+} from "../@types/types";
 import PayableRepository from "../repositories/payableRepository";
 import TransactionRepository from "../repositories/transactionRepository";
 import { randomUUID } from "node:crypto";
@@ -49,5 +55,44 @@ export default class InMemoryTransactionRepository
     if (!find) return null;
 
     return find;
+  }
+
+  async findAllByUserId(
+    userId: string,
+    page: number,
+    perPage: number
+  ): Promise<ITransactionAndPayablePaginated> {
+    const findUserTransactions = this.transactions.filter(
+      (transaction) =>
+        transaction.receiverId === userId || transaction.payerId === userId
+    );
+
+    let transactionsFormat = [] as ITransactionAndPayable[];
+
+    await findUserTransactions.forEach(async (transaction) => {
+      const getTransaction: ITransactionAndPayable = {
+        ...transaction,
+        payable: {} as IPayable,
+      };
+
+      const transactionPayables =
+        await this.payableRepository?.findByTransactionId(transaction.id!);
+
+      if (transactionPayables) {
+        getTransaction.payable = transactionPayables;
+      }
+
+      transactionsFormat.push(getTransaction);
+    });
+
+    return {
+      page,
+      perPage,
+      totalItens: transactionsFormat.length,
+      transactions: transactionsFormat.splice(
+        (page - 1) * perPage,
+        perPage * page
+      ),
+    };
   }
 }

@@ -1,4 +1,9 @@
-import { IPayable, ITransaction, ITransactionSave } from "../@types/types";
+import {
+  IPayable,
+  ITransaction,
+  ITransactionAndPayablePaginated,
+  ITransactionSave,
+} from "../@types/types";
 
 export default interface TransactionRepository {
   save(transactionDto: ITransactionSave): Promise<{
@@ -7,4 +12,10 @@ export default interface TransactionRepository {
   }>;
 
   findById(transactionId: string): Promise<ITransaction | null>;
+
+  findAllByUserId(
+    userId: string,
+    page: number,
+    perPage: number
+  ): Promise<ITransactionAndPayablePaginated>;
 }

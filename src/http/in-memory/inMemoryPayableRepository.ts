@@ -90,4 +90,16 @@ export default class InMemoryPayableRepository implements PayableRepository {
 
     return find;
   }
+
+  public async findByTransactionId(
+    transactionId: string
+  ): Promise<IPayable | null> {
+    const find = this.payables.find(
+      (payable) => payable.transactionId === transactionId
+    );
+
+    if (!find) return null;
+
+    return find;
+  }
 }

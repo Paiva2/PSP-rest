@@ -78,4 +78,26 @@ export default class PayableModel implements PayableRepository {
       []
     );
   }
+
+  async findByTransactionId(transactionId: string): Promise<IPayable | null> {
+    const { rows } = await pool.query(
+      "SELECT * FROM tb_payables WHERE transaction_id = $1",
+      [transactionId]
+    );
+
+    if (!rows.length) return null;
+
+    const find: IPayableModel = rows[0];
+
+    return {
+      id: find.id,
+      value: find.value,
+      fee: find.fee,
+      status: find.status,
+      paymentDate: find.payment_date,
+      transactionId: find.transaction_id,
+      createdAt: find.created_at,
+      updatedAt: find.updated_at,
+    };
+  }
 }

@@ -4,4 +4,6 @@ export default interface PayableRepository {
   save(newPayable: IPayableCreation): Promise<IPayable>;
 
   receiversOfDay(): Promise<IPayableReceivers[]>;
+
+  findByTransactionId(transactionId: string): Promise<IPayable | null>;
 }

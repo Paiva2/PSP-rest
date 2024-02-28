@@ -58,6 +58,17 @@ export interface ITransaction {
   receiverId: string;
 }
 
+export interface ITransactionAndPayable extends ITransaction {
+  payable: IPayable;
+}
+
+export interface ITransactionAndPayablePaginated {
+  page: number;
+  perPage: number;
+  totalItens: number;
+  transactions: ITransactionAndPayable[];
+}
+
 export interface ITransactionModel {
   id?: string;
   value: Big;

@@ -5,6 +5,7 @@
 At its core, a PSP (Payment Service Provider) has two crucial functions:
 
 1.Allow our clients to process transactions ("cash-in").
+
 2.Make payments of receivables to our clients ("cash-out").
 
 * `transactions`: que representam as informações da compra, dados do cartão, valor, etc

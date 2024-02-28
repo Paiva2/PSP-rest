@@ -3,6 +3,7 @@ import TransactionModel from "../../../database/TransactionModel";
 import UserModel from "../../../database/UserModel";
 import WalletModel from "../../../database/WalletModel";
 import { CreateTransactionService } from "../../../services/transactions/createTransactionService";
+import ListOwnTransactionsService from "../../../services/transactions/listOwnTransactionsService";
 import WaitingFundsTransactionService from "../../../services/transactions/waitingFundsTransactionService";
 
 export default class TransactionFactory {
@@ -20,9 +21,15 @@ export default class TransactionFactory {
       models.payableRepository
     );
 
+    const listOwnTransactionsService = new ListOwnTransactionsService(
+      models.userRepository,
+      models.transactionRepository
+    );
+
     return {
       createTransactionService,
       waitingFundsTransactionService,
+      listOwnTransactionsService,
     };
   }
 
